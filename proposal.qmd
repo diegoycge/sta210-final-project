@@ -1,12 +1,15 @@
 ---
-title: "proposal"
-format: html
+title: "STA 210 Project Proposal: A Study of Airfares in the Top 1000 U.S. City-Pair Markets"
+author: "Diego Ge"
+format: pdf
+date: 2026-02-21
 ---
 
 ```{r}
 #| label: library-import-data-wrangling
 #| warning: FALSE
 #| message: FALSE
+#| echo: FALSE
 
 library(readr)
 library(dplyr)
@@ -16,8 +19,8 @@ airfare <- read_csv("data/airfare.csv")
 
 airfare <- airfare %>% 
   filter(
-    Year == 2025,
-    quarter == 2
+    Year == 2024,
+    quarter == 4
   ) %>% 
   mutate(
     fare = parse_number(fare),
@@ -44,5 +47,25 @@ airfare <- airfare %>%
     ))
   )
 
+# airfare %>% ggplot(aes(x = nsmiles, y = fare)) +
+#  geom_point()
+
 ```
+
+# Section 1: Introduction
+
+What determines how much you pay for a plane ticket? When we drive from Point A to Point B, calculating cost is relatively straightforward: adding the depreciation value of the vehicle, the time-value of the drive time, and the cost of gas gives us a basically accurate estimate of how much the trip will cost in a car. Airfares, however, can vary wildly and independent from the distance traveled. 
+
+For instance, one can fly from New Haven, CT to Tampa, FL for a distance of 1067 miles for just an average fare of 103 US Dollars (in Q4, 2024 - see `data/airfare.csv`), while a flight of 226 miles from Atlanta, GA to Charlotte, NC has an average fare of 309.22 US Dollars in Q4, 2024.
+
+One explanation of this disparity in pricing is that on routes with little to no competitions, individual airlines are able to inflate  pricing for nonstop flights without a significant drop in demand. As there are significant capital costs and slot constraints to opening new flight routes, it can be difficult to introduce more competition to particular routes with relatively lower demand. Testing this hypothesis, Brueckner et al. 2013, using the adjacent-airport approach, shows that while low-cost carrier competition can create dramatic fare impacts, competition between legacy carriers have limited impacts on airfares.
+
+![Airfares for Raleigh-Durham to New York City flights on Mar 4, 2026, accessed Feb 21, 2026](figures-and-media/rdu-nyc-fare-illustration.png)
+
+# Section 2: Data Description
+
+# Section 3: Data Processing
+
+# Section 4: Analysis Approach
+
 

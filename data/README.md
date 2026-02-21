@@ -9,7 +9,7 @@ editor_options:
 Data set source:
 <https://data.transportation.gov/Aviation/Consumer-Airfare-Report-Table-1-Top-1-000-Contiguo/4f3n-jbg2/about_data>
 
-For this analysis, we filtered for *2025 Q2* data. The dataset contains
+For this analysis, we filtered for *2024 Q4* data. The dataset contains
 the consumer airfares of the top 1000 contiguous U.S. State City-Pair
 markets.
 
