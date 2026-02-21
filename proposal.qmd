@@ -6,7 +6,7 @@ date: 2026-02-21
 ---
 
 ```{r}
-#| label: library-import-data-wrangling
+#| label: library-data-import-data-wrangling
 #| warning: FALSE
 #| message: FALSE
 #| echo: FALSE
@@ -14,22 +14,28 @@ date: 2026-02-21
 library(readr)
 library(dplyr)
 library(ggplot2)
+library(tidymodels)
 
 airfare <- read_csv("data/airfare.csv")
 
 airfare <- airfare %>% 
   filter(
-    Year == 2024,
-    quarter == 4
+    Year == 2024 | Year == 2019,
+    quarter == 3
   ) %>% 
   mutate(
     fare = parse_number(fare),
     fare_lg = parse_number(fare_lg),
-    fare_low = parse_number(fare_low)
+    fare_low = parse_number(fare_low),
+    timeframe = as.factor(case_when(
+      Year == 2019 ~ "2019Q3",
+      Year == 2024 ~ "2024Q3",
+      TRUE ~ NA
+    ))
   ) %>% 
   select(
     city1, city2, nsmiles, passengers, fare, carrier_lg, large_ms, fare_lg, 
-    carrier_low, lf_ms, fare_low
+    carrier_low, lf_ms, fare_low, timeframe
   ) %>% 
   # Carrier type determination explained in code book. See data/README.md
   mutate(
@@ -45,10 +51,31 @@ airfare <- airfare %>%
       carrier_low %in% c("F9", "XP", "G4", "NK", "SY") ~ "ulcc",
       TRUE ~ NA
     ))
+  ) %>% 
+  # Inflation adjusting for 2019 prices to match with 2024 prices. 
+  # Multiplier of 1.228 sourced from Bureau of Labor Statistics.
+  mutate(
+    fare_adj = case_when(
+      timeframe == "2024Q3" ~ fare,
+      timeframe == "2019Q3" ~ fare * 1.228,
+      TRUE ~ NA
+    ),
+    fare_lg_adj = case_when(
+      timeframe == "2024Q3" ~ fare_lg,
+      timeframe == "2019Q3" ~ fare_lg * 1.228,
+      TRUE ~ NA
+    ),
+    fare_low_adj = case_when(
+      timeframe == "2024Q3" ~ fare_low,
+      timeframe == "2019Q3" ~ fare_low * 1.228,
+      TRUE ~ NA
+    )
+  ) %>% 
+  mutate(
+    fare_adj_per_mile = fare_adj / nsmiles,
+    fare_lg_adj_per_mile = fare_lg_adj / nsmiles,
+    fare_low_adj_per_mile = fare_low_adj / nsmiles
   )
-
-# airfare %>% ggplot(aes(x = nsmiles, y = fare)) +
-#  geom_point()
 
 ```
 
@@ -65,6 +92,11 @@ One explanation of this disparity in pricing is that on routes with little to no
 # Section 2: Data Description
 
 # Section 3: Data Processing
+
+- Inflation adjusting for 2019 and 2024
+  - https://www.bls.gov/data/inflation_calculator.htm CPI calculator, 100 USD in Sep 2019 = 122.8 USD in Sep 2024
+- Adding categorical variable for type of carrier
+
 
 # Section 4: Analysis Approach
 

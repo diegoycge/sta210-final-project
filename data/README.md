@@ -9,9 +9,14 @@ editor_options:
 Data set source:
 <https://data.transportation.gov/Aviation/Consumer-Airfare-Report-Table-1-Top-1-000-Contiguo/4f3n-jbg2/about_data>
 
-For this analysis, we filtered for *2024 Q4* data. The dataset contains
-the consumer airfares of the top 1000 contiguous U.S. State City-Pair
-markets.
+For this analysis, we filtered for *2019 Q3* and *2024 Q3* data. The
+dataset contains the consumer airfares of the top 1000 contiguous U.S.
+State City-Pair markets.
+
+2019 Q3 and 2024 Q3 are selected as the third quarter of each year
+(July - September) are typically peak seasons for air travel. 2019 is
+also the last year before the pandemic, which gives us insight into the
+changes in the aviation industry after the COVID-19 pandemic.
 
 City markets include airports serving the same city markets. For
 example, JFK, LGA, and EWR fall under the New York City market, and are
@@ -35,7 +40,7 @@ city in non-directional city pair
 
 `nsmiles`: non-stop market miles, using radian measure
 
-`passengers`: passengers per day
+`passengers`: average number of passengers per day
 
 `fare`: overall average fare. *This is the response variable in this
 analysis.*
