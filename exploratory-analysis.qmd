@@ -4,7 +4,9 @@ format: html
 ---
 
 ```{r}
-#| label: library-import-data-exploration
+#| label: library-import-data-wrangling
+#| warning: FALSE
+#| message: FALSE
 
 library(readr)
 library(dplyr)
@@ -12,7 +14,7 @@ library(ggplot2)
 
 airfare <- read_csv("data/airfare.csv")
 
-airfare_2025q2 <- airfare %>% 
+airfare <- airfare %>% 
   filter(
     Year == 2025,
     quarter == 2
@@ -21,8 +23,26 @@ airfare_2025q2 <- airfare %>%
     fare = parse_number(fare),
     fare_lg = parse_number(fare_lg),
     fare_low = parse_number(fare_low)
+  ) %>% 
+  select(
+    city1, city2, nsmiles, passengers, fare, carrier_lg, large_ms, fare_lg, 
+    carrier_low, lf_ms, fare_low
+  ) %>% 
+  # Carrier type determination explained in code book. See data/README.md
+  mutate(
+    carrier_lg_type = as.factor(case_when(
+      carrier_lg %in% c("DL", "UA", "AS", "AA") ~ "fullservice",
+      carrier_lg %in% c("B6", "WN", "MX") ~ "lcc",
+      carrier_lg %in% c("F9", "XP", "G4", "NK", "SY") ~ "ulcc",
+      TRUE ~ NA
+    )),
+    carrier_low_type = as.factor(case_when(
+      carrier_low %in% c("DL", "UA", "AS", "AA", "HA") ~ "fullservice",
+      carrier_low %in% c("B6", "WN", "MX") ~ "lcc",
+      carrier_low %in% c("F9", "XP", "G4", "NK", "SY") ~ "ulcc",
+      TRUE ~ NA
+    ))
   )
-
 
 ```
 
