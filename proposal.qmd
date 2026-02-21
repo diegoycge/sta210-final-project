@@ -89,7 +89,14 @@ One explanation of this disparity in pricing is that on routes with little to no
 
 ![Airfares for Raleigh-Durham to New York City flights on Mar 4, 2026, accessed Feb 21, 2026](figures-and-media/rdu-nyc-fare-illustration.png)
 
+In this analysis, I ask two questions:
+
+1. How have airfare pricing in U.S. domestic flights changed between 2019 and 2024?
+2. What factors predict average fares in U.S. domestic flights?
+
 # Section 2: Data Description
+
+
 
 # Section 3: Data Processing
 
