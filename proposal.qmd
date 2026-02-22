@@ -15,6 +15,8 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(tidymodels)
+library(skimr)
+library(knitr)
 
 airfare <- read_csv("data/airfare.csv")
 
@@ -75,7 +77,24 @@ airfare <- airfare %>%
     fare_adj_per_mile = fare_adj / nsmiles,
     fare_lg_adj_per_mile = fare_lg_adj / nsmiles,
     fare_low_adj_per_mile = fare_low_adj / nsmiles
-  )
+  ) %>% 
+  mutate(
+    distance_group = factor(case_when(
+      nsmiles <= 500 ~ "<500",
+      nsmiles > 500  & nsmiles <= 1000 ~ "501–1000",
+      nsmiles > 1000 & nsmiles <= 1500 ~ "1001–1500",
+      nsmiles > 1500 & nsmiles <= 2000 ~ "1501–2000",
+      nsmiles > 2000 & nsmiles <= 2500 ~ "2001–2500",
+      nsmiles > 2500 ~ "2500+"),
+      levels = c(
+        "<500",
+        "501–1000",
+        "1001–1500",
+        "1501–2000",
+        "2001–2500",
+        "2500+"
+      )
+  ))
 
 ```
 
@@ -103,6 +122,140 @@ In this analysis, I ask two questions:
 - Inflation adjusting for 2019 and 2024
   - https://www.bls.gov/data/inflation_calculator.htm CPI calculator, 100 USD in Sep 2019 = 122.8 USD in Sep 2024
 - Adding categorical variable for type of carrier
+
+```{r}
+#| label: response-var-summary-stat
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+# Aggregate
+
+airfare %>% 
+  skim(fare_adj) %>% 
+  select(-skim_variable, -skim_type, -n_missing, 
+         -complete_rate, -numeric.hist) %>% 
+  kable(digits = 2, 
+        caption = "Airfare for Top 1,000 City Market Pairs in 
+        the Contiguous United States (Inflation-Adjusted 2024 USD)",
+        col.names = c("Mean", "SD", "Min", "P25", "Median", "P75", "Max"))
+
+airfare %>%
+  group_by(timeframe) %>%
+  skim(fare_adj) %>% 
+  select(-skim_variable, -skim_type, -n_missing, 
+         -complete_rate, -numeric.hist) %>% 
+  kable(digits = 2,
+        caption = "Airfare for Top 1,000 City Market Pairs in 
+        the Contiguous United States by timeframe 
+        (Inflation-Adjusted 2024 USD)",
+        col.names = c("Timeframe", "Mean", "SD", "Min", 
+                      "P25", "Median", "P75", "Max"))
+
+airfare %>%
+  group_by(distance_group) %>%
+  skim(fare_adj) %>% 
+  select(-skim_variable, -skim_type, -n_missing, 
+         -complete_rate, -numeric.hist) %>% 
+  kable(digits = 2,
+        caption = "Airfare Summary Statistics for Top 1,000 City Market Pairs in 
+        the Contiguous United States by distance 
+        (Inflation-Adjusted 2024 USD)",
+        col.names = c("Distance (miles)", "Mean", "SD", "Min", 
+                      "P25", "Median", "P75", "Max"))
+
+
+```
+
+```{r}
+#| label: response-var-visualization-timeframe
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+# Visualizations
+
+airfare %>% ggplot(aes(x = fare_adj, color = timeframe)) +
+  geom_density() +
+  labs(
+    x = "Average Fare (USD, adjusted for inflation)",
+    y = "Density",
+    title = "Distribution of U.S. domestic airfares for nonstop flights",
+    subtitle = "For top 1000 city market pairs within the contiguous 48 states, 
+    for 2019 Q3 and 2024 Q3",
+    color = "Timeframe"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+#| label: response-var-visualization-nsmiles-timeframe
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+airfare %>% ggplot(aes(x = nsmiles, y = fare_adj, color = timeframe)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(se = FALSE, method = "lm") +
+  labs(
+    x = "Nonstop Distance Between City Markets (miles)",
+    y = "Average Fare (USD, adjusted for inflation)",
+    title = "Distribution of U.S. domestic airfares for nonstop flights",
+    color = "Timeframe",
+    subtitle = "For top 1000 city market pairs within the contiguous 48 states,
+    by nonstop distance, for 2019 Q3 and 2024 Q3"
+  ) +
+  theme_minimal()
+
+```
+
+
+```{r}
+#| label: visualization-log-fare-per-mile
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+airfare %>% ggplot(aes(x = log(nsmiles), y = log(fare_adj_per_mile), color = timeframe)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(se = FALSE, method = "lm") +
+  labs(
+    title = "Distance Elasticity of U.S. Domestic Airfare",
+    subtitle = "For top 1000 city market pairs within the contiguous 48 states 
+    in 2019 Q3 and 2024 Q3",
+    x = "log(Distance, miles)",
+    y = "log(Fare per mile flown, USD/miles)",
+    color = "Timeframe"
+  ) +
+  theme_minimal()
+  
+```
+
+```{r}
+#| label: response-var-visualization-carrier-type
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+airfare %>% ggplot(aes(x = fare_adj, y = timeframe, color = carrier_lg_type)) +
+  geom_boxplot() +
+  labs(
+    x = "Average Fare (USD, adjusted for inflation)",
+    y = "",
+    color = "Type of Largest Carrier",
+    title = "Distribution of U.S. Airfare by Route's Largest Operating Carrier",
+    subtitle = "For top 1000 city market pairs within the contiguous 48 states,
+    in 2019 Q3 and 2024 Q3"
+  ) +
+  theme_minimal() +
+  scale_color_discrete(labels = c("Full Service", "Low Cost Carrier", 
+                                  "Ultra-Low Cost Carrier")) 
+
+
+
+```
+
 
 
 # Section 4: Analysis Approach
