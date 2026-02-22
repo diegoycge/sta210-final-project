@@ -158,7 +158,7 @@ airfare %>%
   select(-skim_variable, -skim_type, -n_missing, 
          -complete_rate, -numeric.hist) %>% 
   kable(digits = 2,
-        caption = "Airfare Summary Statistics for Top 1,000 City Market Pairs in 
+        caption = "Airfare for Top 1,000 City Market Pairs in 
         the Contiguous United States by distance 
         (Inflation-Adjusted 2024 USD)",
         col.names = c("Distance (miles)", "Mean", "SD", "Min", 
@@ -217,7 +217,9 @@ airfare %>% ggplot(aes(x = nsmiles, y = fare_adj, color = timeframe)) +
 #| warning: FALSE
 #| message: FALSE
 
-airfare %>% ggplot(aes(x = log(nsmiles), y = log(fare_adj_per_mile), color = timeframe)) +
+airfare %>% ggplot(aes(x = log(nsmiles), 
+                       y = log(fare_adj_per_mile), 
+                       color = timeframe)) +
   geom_point(alpha = 0.4) +
   geom_smooth(se = FALSE, method = "lm") +
   labs(
